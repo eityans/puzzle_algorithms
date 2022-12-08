@@ -1,6 +1,7 @@
 # ruby ten_puzzle_solver.rb 1 2 3 4
 arg = ARGV.map(&:to_i)
 
+TARGET = 10
 OPERATORS = %w[+ - * /]
 
 def is_operator?(char)
@@ -14,8 +15,8 @@ def calc_poland(poland_str)
   poland_str.split('').each do |c|
     if is_operator?(c)
       # 順番大事
-      second = stack.pop
-      first = stack.pop
+      second = stack.pop.to_f
+      first = stack.pop.to_f
 
       result = case c
         in "+"
@@ -60,5 +61,21 @@ def decode_poland(poland_str)
   space.join
 end
 
-pp calc_poland("12+3+4*")
-pp decode_poland("12+3+4*")
+def polands(numbers)
+  raise ArgumentError.new("numbers must be just four numbers, but input is #{numbers}") unless numbers.size == 4
+  results = []
+  number_permutations = numbers.permutation.to_a
+  operator_permutations = OPERATORS.repeated_permutation(3).to_a
+
+  number_permutations.each do |nums|
+    operator_permutations.each do |ops|
+      poland = [nums[0], nums[1], nums[2], nums[3], ops[0], ops[1], ops[2]].join
+      results << decode_poland(poland) if (calc_poland(poland) - TARGET).abs < Float::MIN
+    rescue ZeroDivisionError
+    end
+  end
+
+  results.uniq
+end
+
+puts polands(arg)
