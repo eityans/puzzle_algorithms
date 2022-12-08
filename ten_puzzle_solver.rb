@@ -63,19 +63,30 @@ end
 
 def polands(numbers)
   raise ArgumentError.new("numbers must be just four numbers, but input is #{numbers}") unless numbers.size == 4
-  results = []
+  polands = []
   number_permutations = numbers.permutation.to_a
   operator_permutations = OPERATORS.repeated_permutation(3).to_a
 
   number_permutations.each do |nums|
     operator_permutations.each do |ops|
-      poland = [nums[0], nums[1], nums[2], nums[3], ops[0], ops[1], ops[2]].join
-      results << decode_poland(poland) if (calc_poland(poland) - TARGET).abs < Float::MIN
-    rescue ZeroDivisionError
+      polands << [nums[0], nums[1], nums[2], nums[3], ops[0], ops[1], ops[2]].join
+      polands << [nums[0], nums[1], nums[2], ops[0], nums[3], ops[1], ops[2]].join
+      polands << [nums[0], nums[1], nums[2], ops[0], ops[1], nums[3], ops[2]].join
+      polands << [nums[0], nums[1], ops[0], nums[2], nums[3], ops[1], ops[2]].join
+      polands << [nums[0], nums[1], ops[0], nums[2], ops[1], nums[3], ops[2]].join
     end
   end
 
-  results.uniq
+  polands.uniq
 end
 
-puts polands(arg)
+def solve(arg)
+  results = []
+  polands(arg).each do |poland|
+    results << decode_poland(poland) if (calc_poland(poland) - TARGET).abs < Float::MIN
+  rescue ZeroDivisionError
+  end
+  results
+end
+
+puts solve(arg)
